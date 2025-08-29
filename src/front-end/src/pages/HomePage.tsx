@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../layouts/HeaderLayout";
+import { ChevronDown } from "lucide-react";
 
 const allProjects = [
   {
@@ -95,7 +96,13 @@ const allProjects = [
   },
 ];
 
-const filters = [
+interface Option {
+  label: string;
+  value: string;
+}
+
+
+  const filters: Option[] = [
   { label: "Todos", value: "all" },
   { label: "Frontend", value: "frontend" },
   { label: "Backend", value: "backend" },
@@ -104,17 +111,60 @@ const filters = [
   { label: "Gestão", value: "gestao" },
 ];
 
-const orders = [
+  const orders: Option[] = [
   { label: "Mais recentes", value: "recent" },
   { label: "Mais vistos", value: "views" },
   { label: "A-Z", value: "az" },
 ];
+
+
+interface CustomSelectProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: Option[];
+}
+
+function CustomSelect({ value, onChange, options }: CustomSelectProps){
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <select
+        value={value}
+        onChange={onChange}
+        onClick={() => setOpen(!open)}
+        onBlur={() => setOpen(false)}
+        className="appearance-none px-4 py-2 pr-10 rounded-lg bg-indigo-900/80 
+                   border border-indigo-700 text-blue-100 
+                   focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+      >
+        {options.map(o => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
+      {/* Seta customizada */}
+      <span
+        className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 
+                    text-blue-200 transition-transform duration-200
+                    ${open ? "[transform:translateY(-50%)_rotateX(180deg)]" : "[transform:translateY(-50%)_rotateX(0deg)]"}`}
+      >
+       ᨆ
+      </span>
+    </div>
+  );
+}
+
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [order, setOrder] = useState("recent");
   const [visible, setVisible] = useState(6);
+  const [open, setOpen] = useState(false);
+
 
   let filtered = allProjects.filter((p) =>
     (filter === "all" || p.category === filter) &&
@@ -153,24 +203,20 @@ export default function Home() {
             onChange={e => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 rounded-lg bg-indigo-900/80 border border-indigo-700 text-blue-100 placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
-          <select
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg bg-indigo-900/80 border border-indigo-700 text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          >
-            {filters.map(f => (
-              <option key={f.value} value={f.value}>{f.label}</option>
-            ))}
-          </select>
-          <select
-            value={order}
-            onChange={e => setOrder(e.target.value)}
-            className="px-4 py-2 rounded-lg bg-indigo-900/80 border border-indigo-700 text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          >
-            {orders.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+      
+
+      
+      <CustomSelect
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)} // agora tipado corretamente
+        options={filters} // passa o array, não a string
+      />
+
+       <CustomSelect
+        value={order}
+        onChange={(e) => setOrder(e.target.value)} // agora tipado corretamente
+        options={orders} // passa o array, não a string
+      />
         </div>
 
         {/* Grid de projetos */}
